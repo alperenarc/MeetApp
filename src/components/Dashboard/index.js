@@ -3,6 +3,7 @@ import { Typography, Paper, Avatar, CircularProgress, Button } from '@material-u
 import VerifiedUserOutlined from '@material-ui/icons/VerifiedUserOutlined'
 import withStyles from '@material-ui/core/styles/withStyles'
 import firebase from '../firebase'
+import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router-dom'
 
 const styles = theme => ({
@@ -36,14 +37,14 @@ const styles = theme => ({
 function Dashboard(props) {
 	const { classes } = props
 
-	if(!firebase.getCurrentUsername()) {
+	if (!firebase.getCurrentUsername()) {
 		// not logged in
 		alert('Please login first')
 		props.history.replace('/login')
 		return null
 	}
 
-	
+
 	return (
 		<main className={classes.main}>
 			<Paper className={classes.paper}>
@@ -51,8 +52,18 @@ function Dashboard(props) {
 					<VerifiedUserOutlined />
 				</Avatar>
 				<Typography component="h1" variant="h5">
-					Hello { firebase.getCurrentUsername() }
+					Hello {firebase.getCurrentUsername()}
 				</Typography>
+				<Button
+					type="submit"
+					fullWidth
+					variant="contained"
+					color="secondary"
+					component={Link}
+					to="/Meet"
+					className={classes.submit}>
+					Create Meet
+          			</Button>
 				<Button
 					type="submit"
 					fullWidth
@@ -69,6 +80,10 @@ function Dashboard(props) {
 	async function logout() {
 		await firebase.logout()
 		props.history.push('/')
+	}
+
+	function createMeet() {
+		firebase.createMeet()
 	}
 }
 

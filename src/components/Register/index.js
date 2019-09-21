@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Typography, Paper, Avatar, Button, FormControl, Input, InputLabel } from '@material-ui/core'
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import { Typography, Paper, Button, FormControl, Input, InputLabel } from '@material-ui/core'
 import withStyles from '@material-ui/core/styles/withStyles'
 import { Link, withRouter } from 'react-router-dom'
 import firebase from '../firebase'
+import meetlogo from '../meet-logo.png'
+import SweetAlert from 'sweetalert2-react';
+
 const styles = theme => ({
 	main: {
 		width: 'auto',
@@ -34,6 +36,9 @@ const styles = theme => ({
 	submit: {
 		marginTop: theme.spacing.unit * 3,
 	},
+	meetlogo: {
+		width: '50px',
+	},
 })
 
 function Register(props) {
@@ -42,31 +47,31 @@ function Register(props) {
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
-	const [quote, setQuote] = useState('')
+	const [show, setShow] = useState('true')
 
 	return (
 		<main className={classes.main}>
 			<Paper className={classes.paper}>
-				<Avatar className={classes.avatar}>
-					<LockOutlinedIcon />
-				</Avatar>
+				<div>
+					<img src={meetlogo} alt="Logo" className={classes.meetlogo} />
+				</div>
 				<Typography component="h1" variant="h5">
 					Register Account
        			</Typography>
-				<form className={classes.form} onSubmit={e => e.preventDefault() && false }>
+				<form className={classes.form} onSubmit={e => e.preventDefault() && false}>
 					<FormControl margin="normal" required fullWidth>
 						<InputLabel htmlFor="name">Name Surname</InputLabel>
 						<Input id="name" name="name" autoComplete="off" autoFocus value={name} onChange={e => setName(e.target.value)} />
 					</FormControl>
 					<FormControl margin="normal" required fullWidth>
 						<InputLabel htmlFor="email">Email Address</InputLabel>
-						<Input id="email" name="email" autoComplete="off" value={email} onChange={e => setEmail(e.target.value)}  />
+						<Input id="email" name="email" autoComplete="off" value={email} onChange={e => setEmail(e.target.value)} />
 					</FormControl>
 					<FormControl margin="normal" required fullWidth>
 						<InputLabel htmlFor="password">Password</InputLabel>
-						<Input name="password" type="password" id="password" autoComplete="off" value={password} onChange={e => setPassword(e.target.value)}  />
+						<Input name="password" type="password" id="password" autoComplete="off" value={password} onChange={e => setPassword(e.target.value)} />
 					</FormControl>
-					
+
 
 					<Button
 						type="submit"
@@ -77,7 +82,6 @@ function Register(props) {
 						className={classes.submit}>
 						Register
           			</Button>
-
 					<Button
 						type="submit"
 						fullWidth
@@ -96,13 +100,15 @@ function Register(props) {
 	async function onRegister() {
 		try {
 			await firebase.register(name, email, password)
-			
 			props.history.replace('/login')
+
+		} catch (error) {
+			alert(error.message);
 			
-		} catch(error) {
-			alert(error.message)
+
 		}
 	}
+
 }
 
 export default withRouter(withStyles(styles)(Register))

@@ -1,9 +1,8 @@
 import React from 'react'
-import { Typography, Paper, Avatar, Button } from '@material-ui/core'
-import VerifiedUserOutlined from '@material-ui/icons/VerifiedUserOutlined'
+import { Typography, Paper, Button } from '@material-ui/core'
 import withStyles from '@material-ui/core/styles/withStyles'
 import { Link } from 'react-router-dom'
-
+import meetlogo from '../meet-logo.png'
 const styles = theme => ({
 	main: {
 		width: 'auto',
@@ -30,6 +29,9 @@ const styles = theme => ({
 	submit: {
 		marginTop: theme.spacing.unit * 3,
 	},
+	meetlogo: {
+		width: '50px',
+	},
 })
 
 function HomePage(props) {
@@ -38,9 +40,9 @@ function HomePage(props) {
 	return (
 		<main className={classes.main}>
 			<Paper className={classes.paper}>
-				<Avatar className={classes.avatar}>
-					<VerifiedUserOutlined />
-				</Avatar>
+				<div>
+					<img src={meetlogo} alt="Logo" className={classes.meetlogo} />
+				</div>
 				<Typography component="h1" variant="h5">
 					Welcome to Meet App
 				</Typography>

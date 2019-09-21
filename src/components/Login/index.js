@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Typography, Paper, Avatar, Button, FormControl, Input, InputLabel } from '@material-ui/core'
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import { Typography, Paper, Button, FormControl, Input, InputLabel } from '@material-ui/core'
 import withStyles from '@material-ui/core/styles/withStyles'
 import { Link, withRouter } from 'react-router-dom'
 import firebase from '../firebase'
+import meetlogo from '../meet-logo.png'
 
 const styles = theme => ({
 	main: {
@@ -35,6 +35,9 @@ const styles = theme => ({
 	submit: {
 		marginTop: theme.spacing.unit * 3,
 	},
+	meetlogo: {
+		width: '50px',
+	},
 });
 
 function SignIn(props) {
@@ -46,9 +49,9 @@ function SignIn(props) {
 	return (
 		<main className={classes.main}>
 			<Paper className={classes.paper}>
-				<Avatar className={classes.avatar}>
-					<LockOutlinedIcon />
-				</Avatar>
+				<div>
+					<img src={meetlogo} alt="Logo" className={classes.meetlogo} />
+				</div>
 				<Typography component="h1" variant="h5">
 					Sign in
        			</Typography>
@@ -89,7 +92,7 @@ function SignIn(props) {
 		try {
 			await firebase.login(email, password)
 			props.history.replace('/dashboard')
-		} catch(error) {
+		} catch (error) {
 			alert(error.message)
 		}
 	}

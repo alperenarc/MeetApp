@@ -60,16 +60,19 @@ function CreateMeet(props) {
         </main>
     )
     async function onCreateMeet() {
-		try {
-			await firebase.createMeet(title,description,date)
-			alert("Success");
+        try {
+            
+            await firebase.createMeet(title, description, date)
+            await firebase.getMeetForLink()
 
-		} catch (error) {
-			alert(error.message);
-			
 
-		}
-	}
+            props.history.replace('/meetdetail')
+            alert("Success")
+
+        } catch (error) {
+            alert(error.message)
+        }
+    }
 }
 
 export default withStyles(styles)(CreateMeet)

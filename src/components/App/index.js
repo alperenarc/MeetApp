@@ -9,11 +9,12 @@ import MeetDetail from '../MeetDetail'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import { CssBaseline, CircularProgress } from '@material-ui/core'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import ReactDOM from 'react-dom'
 import firebase from '../firebase'
 
 const theme = createMuiTheme()
 
-//ReactDOM.render(<Router basename={process.env.PUBLIC_URL}>< App /></Router>, document.getElementById('root'));
+ReactDOM.render(<Router basename={"https://alperenarc.github.io/MeetApp/"}>< App /></Router>, document.getElementById('root'));
 
 export default function App() {
 
@@ -32,10 +33,10 @@ export default function App() {
 
 			<Router>
 				<Switch>
-					<Route exact path="/" component={HomePage} />
+					<Route exact path="/" render={ (routerProps) => <HomePage routerProps={routerProps} />} component={HomePage} />
 
 					
-
+					
 					<Route exact path="/login" component={Login} />
 					<Route exact path="/register" component={Register} />
 					<Route exact path="/dashboard" component={Dashboard} />

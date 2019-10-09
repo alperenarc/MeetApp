@@ -13,6 +13,8 @@ import firebase from '../firebase'
 
 const theme = createMuiTheme()
 
+//ReactDOM.render(<Router basename={process.env.PUBLIC_URL}>< App /></Router>, document.getElementById('root'));
+
 export default function App() {
 
 	const [firebaseInitialized, setFirebaseInitialized] = useState(false)
@@ -27,17 +29,22 @@ export default function App() {
 	return firebaseInitialized !== false ? (
 		<MuiThemeProvider theme={theme}>
 			<CssBaseline />
+
 			<Router>
 				<Switch>
 					<Route exact path="/" component={HomePage} />
+
+					
+
 					<Route exact path="/login" component={Login} />
 					<Route exact path="/register" component={Register} />
 					<Route exact path="/dashboard" component={Dashboard} />
 					<Route exact path="/meet" component={Meet} />
 					<Route exact path="/meetdetail" component={MeetDetail} />
-					
+
 				</Switch>
+				
 			</Router>
-		</MuiThemeProvider>
+		</MuiThemeProvider >
 	) : <div id="loader"><CircularProgress /></div>
 }

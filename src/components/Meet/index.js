@@ -61,12 +61,12 @@ function CreateMeet(props) {
     )
     async function onCreateMeet() {
         try {
-            
+
             await firebase.createMeet(title, description, date)
-            await firebase.getMeetForLink()
+            
 
-
-            props.history.replace('/meetdetail')
+            
+            props.history.replace('/meetdetail?query=' + firebase.getCurrentLink())
             alert("Success")
 
         } catch (error) {

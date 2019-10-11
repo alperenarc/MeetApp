@@ -42,7 +42,20 @@ class Firebase {
 		return firebase.auth().signOut()
 	}
 	async register(name, email, password) {
-		await firebase.auth().createUserWithEmailAndPassword(email, password)
+
+		const user = await firebase.auth().createUserWithEmailAndPassword(email, password)
+		const userDesc = {
+			name: name,
+			userUid: firebase.auth().currentUser.uid
+		};
+		await firebase.firestore()
+			.collection('user')
+			.add({
+				name: userDesc.name,
+				userUid: userDesc.userUid
+			});
+
+
 		return firebase.auth().currentUser.updateProfile({
 			displayName: name
 		})
@@ -66,6 +79,7 @@ class Firebase {
 	getCurrentUsername() {
 		return firebase.auth().currentUser && firebase.auth().currentUser.displayName
 	}
+
 	// Get User Id or uid
 	getCurrentUserId() {
 		return firebase.auth().currentUser.uid
@@ -87,7 +101,7 @@ class Firebase {
 			link: uuidv1()
 		};
 
-		const newmeet = await this.db
+		const newmeet = await firebase.firestore()
 			.collection('meet')
 			.add({
 				title: meet.title,
@@ -97,74 +111,28 @@ class Firebase {
 				meetDate: meet.meetDate
 			});
 		this.state.meetLink = meet.link
+
 		return newmeet.link
 	}
 
-	getMeetForLink = async (link) => {
-
-		if (link == null) {
-			link = this.state.meetLink
-		}
-
-		/*const array = this.db.collection("meet")
-			.where('link', '==', link)
-			.get()
-			.then(querySnapshot => {
-				const data = querySnapshot.docs.map(doc => doc.data());
-				console.log(data)
-				return data
-			}).then(
-				response => {
-					return response[0]
-				}
-			);
-
-		console.log(array.get('meet'))
-		return array*/
-
-
-
-		/*const quote = await this.db.collection("meet").where('link', '==', link).get()
-		return quote*/
-
-
-
-		/*.then(
-			response => {
-
-				this.state.creatorUser = response[0].creatorUserId
-				this.state.descr = response[0].description
-				this.state.titles = response[0].title
-				this.state.meetDates = response[0].meetDate
-
-				console.log(this.state.descr)
-
-			}
-
-		)*/
-
-	}
 
 	getCurrentLink = () => {
+		console.log(this.state.meetLink)
 		return this.state.meetLink
-	}
-
-	getCurrentDescription = () => {
-		return this.state.descr
-	}
-	getCurrentTitle = () => {
-		return this.state.titles
-	}
-	getCurrentCreatorUser = () => {
-		return this.state.creatorUser
-	}
-	getCurrentMeetDate = () => {
-		return this.state.meetDates
 	}
 
 	// Katılan user ın Id sini ve şu an ki bulunduğu sayfadaki Meet in
 	// Linkini bir tabloya kaydetmelidir.
 	createJoinUser = () => {
+		console.log("başarılı")
+
+		const search = window.location.search
+		const params = new URLSearchParams(search)
+		const myQueryLink = params.get('query')
+		
+		if (this.state.meetLink === "Link is Null") {
+			this.state.meetLink = myQueryLink
+		}
 		const IsJoin = {
 
 			userId: firebase.auth().currentUser.uid,
@@ -172,7 +140,7 @@ class Firebase {
 
 		};
 
-		const join = this.db
+		const join = firebase.firestore()
 			.collection('join')
 			.add({
 				userId: IsJoin.userId,
@@ -180,6 +148,7 @@ class Firebase {
 			});
 		return join.id
 	}
+
 
 
 }

@@ -3,7 +3,7 @@ import { Typography, Paper, FormControl, Input, InputLabel } from '@material-ui/
 import withStyles from '@material-ui/core/styles/withStyles'
 import { Link } from 'react-router-dom'
 import meetlogo from '../meet-logo.png'
-//import firebase from '../firebase'
+import fire from '../firebase'
 import styles from '../Meet/style'
 import { Redirect } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -40,16 +40,9 @@ class MeetDetail extends Component {
                     <Typography component="h1" variant="h5">
                         Share Invite Link
        			</Typography>
-                    <div>
-
-                        Title : {this.state.titles}
-                        <br />
-                        Description : {this.state.descr}
-
-                    </div>
                     <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
                         <FormControl margin="normal" required fullWidth>
-                            <CopyToClipboard text={this.state.shareLink}
+                            <CopyToClipboard text={'http://localhost:3000/meetdetail?query='+this.state.shareLink+''}
                                 onCopy={() => this.setState({ copied: true })}>
                                 <Button
                                     fullWidth
@@ -60,6 +53,16 @@ class MeetDetail extends Component {
                             </CopyToClipboard>
                             {this.state.copied ? <span style={{ color: 'green' }}>Copied.</span> : null}
 
+                            <div>
+                                <br/>
+                                <h5>Owner of Meeting : <b>{this.state.creatorUser}</b> </h5>
+                                Title : {this.state.titles}
+                                <br/>
+                                Description : {this.state.descr}
+                                <br/>
+                                Meet Date : {this.state.meetDates}
+
+                            </div>
 
                             <Container>
                                 <Row>
@@ -76,6 +79,7 @@ class MeetDetail extends Component {
                                             type="submit"
                                             variant="success"
                                             fullWidth
+                                            onClick={onIsjoin}
                                             className={classes.submit}>
                                             Katılıyorum
           		                    </Button>
@@ -84,18 +88,22 @@ class MeetDetail extends Component {
                             </Container>
 
                         </FormControl>
-
-
-
-
-
-
-
-
                     </form>
                 </Paper>
             </main >
         )
+        async function onIsjoin() {
+            try {
+                
+                await fire.createJoinUser()
+                
+                //props.history.replace('/meetdetail?query=' + firebase.getCurrentLink())
+                alert("Success")
+    
+            } catch (error) {
+                alert(error.message)
+            }
+        }
     }
 
     componentDidMount() {
@@ -104,11 +112,11 @@ class MeetDetail extends Component {
         const params = new URLSearchParams(search)
         const myQueryLink = params.get('query')
 
-        if (myQueryLink != null || myQueryLink != '') {
+        if (myQueryLink !== null) {
             this.state.shareLink = myQueryLink
         }
         else {
-            const link = firebase.getCurrentLink()
+            const link = fire.getCurrentLink()
             this.setState({ shareLink: link })
         }
 
@@ -121,19 +129,23 @@ class MeetDetail extends Component {
                 return data
             }).then(
                 response => {
-                    
-                    
 
-                    this.state.descr = response[0].description
-                    this.setState({ titles: response[0].title })
+                    this.getUserNamebyId(response[0].creatorUserId)
 
+                    //this.state.descr = response[0].description
+                    this.setState({
+                        titles: response[0].title,
+                        descr: response[0].description,
+                        meetDates: response[0].meetDate,
+                        creatorUser: "fire.getUserNamebyId(response[0].creatorUserId)"
+                    })
 
                     return response[0]
 
                 }
             );
 
-        //console.log(array.get('meet'))
+
         //return array
         /* if (!firebase.auth().currentUser) {
              alert("Lütfen Giriş Yapınız")
@@ -162,6 +174,23 @@ class MeetDetail extends Component {
         // }
 
     }
+    getUserNamebyId = (uid) => {
+        const name = firebase.firestore().collection("user")
+            .where('userUid', '==', uid)
+            .get()
+            .then(querySnapshot => {
+                const data = querySnapshot.docs.map(doc => doc.data());
+                return data
+            }).then(
+                res => {
+                    this.setState({
+                        creatorUser: res[0].name
+                    })
+                }
+            );
+        return name
+    }
+    
 }
 
 export default withStyles(styles)(MeetDetail)

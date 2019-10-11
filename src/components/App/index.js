@@ -35,8 +35,6 @@ export default function App() {
 				<Switch>
 					<Route exact path="/" render={ (routerProps) => <HomePage routerProps={routerProps} />} component={HomePage} />
 
-					
-					
 					<Route exact path="/login" component={Login} />
 					<Route exact path="/register" component={Register} />
 					<Route exact path="/dashboard" component={Dashboard} />

@@ -3,6 +3,8 @@ import app from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firebase-firestore'
 
+const firebase = require('firebase');
+/*
 const config = {
 	apiKey: "AIzaSyBdJfmo5GrCIYQcNA2JTmOA9DgODktrg_4",
 	authDomain: "meetapp-f1da5.firebaseapp.com",
@@ -12,66 +14,64 @@ const config = {
 	messagingSenderId: "327368406646",
 	appId: "1:327368406646:web:f4afcc2af018f3a11dd157"
 }
+*/
+class Firebase {
 
-class Firebase extends Component {
 
-	state = ({
-		meetLink: "ghfghgh"
-	})
 	constructor() {
-		super()
-		app.initializeApp(config)
+
+		/*app.initializeApp(config)
 		this.auth = app.auth()
 		this.db = app.firestore()
-
-		
-		//const [a, setA] = useState(0);
-
-		//this.setStateMethod = this.setStateMethod.bind(this)
+*/
+		this.state = ({
+			meetLink: "Link is Null",
+			data: [],
+			creatorUser: "a",
+			descr: "a",
+			meetDates: "a",
+			titles: "a"
+		})
 	}
 
-	componentDidMount = () => {
-		
-		
-	}
 
 	login(email, password) {
-		return this.auth.signInWithEmailAndPassword(email, password)
+		return firebase.auth().signInWithEmailAndPassword(email, password)
 	}
 	logout() {
-		return this.auth.signOut()
+		return firebase.auth().signOut()
 	}
 	async register(name, email, password) {
-		await this.auth.createUserWithEmailAndPassword(email, password)
-		return this.auth.currentUser.updateProfile({
+		await firebase.auth().createUserWithEmailAndPassword(email, password)
+		return firebase.auth().currentUser.updateProfile({
 			displayName: name
 		})
 	}
 	addQuote(quote) {
-		if (!this.auth.currentUser) {
+		if (!firebase.auth().currentUser) {
 			return alert('Not authorized')
 		}
-		const name = this.auth.currentUser.displayName;
+		const name = firebase.auth().currentUser.displayName;
 
-		return this.db.doc(`Users2/${this.auth.currentUser.uid}`).set({
+		return this.db.doc(`Users2/${firebase.auth().currentUser.uid}`).set({
 			quote,
 			name
 		})
 	}
 	isInitialized() {
 		return new Promise(resolve => {
-			this.auth.onAuthStateChanged(resolve)
+			firebase.auth().onAuthStateChanged(resolve)
 		})
 	}
 	getCurrentUsername() {
-		return this.auth.currentUser && this.auth.currentUser.displayName
+		return firebase.auth().currentUser && firebase.auth().currentUser.displayName
 	}
 	// Get User Id or uid
 	getCurrentUserId() {
-		return this.auth.currentUser.uid
+		return firebase.auth().currentUser.uid
 	}
 	async getCurrentUserQuote() {
-		const quote = await this.db.doc(`users_codedamn_video/${this.auth.currentUser.uid}`).get()
+		const quote = await this.db.doc(`users_codedamn_video/${firebase.auth().currentUser.uid}`).get()
 		return quote.get('quote')
 	}
 
@@ -82,7 +82,7 @@ class Firebase extends Component {
 		const meet = {
 			title: title,
 			description: description,
-			creatorUserId: this.auth.currentUser.uid,
+			creatorUserId: firebase.auth().currentUser.uid,
 			meetDate: meetDate,
 			link: uuidv1()
 		};
@@ -96,11 +96,7 @@ class Firebase extends Component {
 				link: meet.link,
 				meetDate: meet.meetDate
 			});
-		this.setState({
-			meetLink: meet.link
-		});
-
-		console.log(this.state.meetLink)
+		this.state.meetLink = meet.link
 		return newmeet.link
 	}
 
@@ -109,27 +105,70 @@ class Firebase extends Component {
 		if (link == null) {
 			link = this.state.meetLink
 		}
-		console.log(link);
-		this.db.collection("meet")
+
+		/*const array = this.db.collection("meet")
 			.where('link', '==', link)
 			.get()
 			.then(querySnapshot => {
 				const data = querySnapshot.docs.map(doc => doc.data());
-				console.log(data);
-			});
+				console.log(data)
+				return data
+			}).then(
+				response => {
+					return response[0]
+				}
+			);
+
+		console.log(array.get('meet'))
+		return array*/
+
+
+
+		/*const quote = await this.db.collection("meet").where('link', '==', link).get()
+		return quote*/
+
+
+
+		/*.then(
+			response => {
+
+				this.state.creatorUser = response[0].creatorUserId
+				this.state.descr = response[0].description
+				this.state.titles = response[0].title
+				this.state.meetDates = response[0].meetDate
+
+				console.log(this.state.descr)
+
+			}
+
+		)*/
+
 	}
 
+	getCurrentLink = () => {
+		return this.state.meetLink
+	}
 
-
-
+	getCurrentDescription = () => {
+		return this.state.descr
+	}
+	getCurrentTitle = () => {
+		return this.state.titles
+	}
+	getCurrentCreatorUser = () => {
+		return this.state.creatorUser
+	}
+	getCurrentMeetDate = () => {
+		return this.state.meetDates
+	}
 
 	// Katılan user ın Id sini ve şu an ki bulunduğu sayfadaki Meet in
 	// Linkini bir tabloya kaydetmelidir.
 	createJoinUser = () => {
 		const IsJoin = {
 
-			userId: this.auth.currentUser.uid,
-			link: "3c1f12f0-e54e-11e9-af8e-8d5e4ca41bb9"
+			userId: firebase.auth().currentUser.uid,
+			link: this.state.meetLink
 
 		};
 
@@ -139,7 +178,6 @@ class Firebase extends Component {
 				userId: IsJoin.userId,
 				link: IsJoin.link
 			});
-		//return newmeet.id
 		return join.id
 	}
 

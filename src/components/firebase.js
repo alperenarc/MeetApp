@@ -2,6 +2,7 @@ import React, { Component, useState } from 'react'
 import app from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firebase-firestore'
+import MeetDetail from './MeetDetail/index'
 
 const firebase = require('firebase');
 /*
@@ -114,8 +115,6 @@ class Firebase {
 
 		return newmeet.link
 	}
-
-
 	getCurrentLink = () => {
 		console.log(this.state.meetLink)
 		return this.state.meetLink
@@ -124,7 +123,30 @@ class Firebase {
 	// Katılan user ın Id sini ve şu an ki bulunduğu sayfadaki Meet in
 	// Linkini bir tabloya kaydetmelidir.
 	createJoinUser = () => {
-		console.log("başarılı")
+		const search = window.location.search
+		const params = new URLSearchParams(search)
+		const myQueryLink = params.get('query')
+		
+		if (this.state.meetLink === "Link is Null") {
+			this.state.meetLink = myQueryLink
+		}
+		const IsJoin = {
+
+			userName: firebase.auth().currentUser.displayName,
+			link: this.state.meetLink
+
+		};
+
+		const join = firebase.firestore()
+			.collection('join')
+			.add({
+				userName: IsJoin.userName,
+				link: IsJoin.link
+			});
+		return join.id
+	}
+
+	createNottoJoinUser = () => {
 
 		const search = window.location.search
 		const params = new URLSearchParams(search)
@@ -135,20 +157,20 @@ class Firebase {
 		}
 		const IsJoin = {
 
-			userId: firebase.auth().currentUser.uid,
+			userName: firebase.auth().currentUser.displayName,
 			link: this.state.meetLink
 
 		};
 
 		const join = firebase.firestore()
-			.collection('join')
+			.collection('nottojoin')
 			.add({
-				userId: IsJoin.userId,
+				userName: IsJoin.userName,
 				link: IsJoin.link
 			});
 		return join.id
 	}
-
+	
 
 
 }

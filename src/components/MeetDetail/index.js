@@ -7,9 +7,10 @@ import fire from '../firebase'
 import styles from '../Meet/style'
 import { Redirect } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Container, Col, Row, Button } from 'react-bootstrap';
+import { Container, Col, Row, Button, ListGroup, ToggleButton, ButtonGroup, Alert } from 'react-bootstrap';
 import 'firebase/auth'
 import 'firebase/firebase-firestore'
+import { async } from 'q'
 
 const firebase = require('firebase');
 
@@ -24,7 +25,10 @@ class MeetDetail extends Component {
             creatorUser: "",
             descr: "",
             meetDates: "",
-            titles: ""
+            titles: "",
+            joining: [],
+            nottojoining:[],
+            clicked: false
 
         }
     }
@@ -42,7 +46,7 @@ class MeetDetail extends Component {
        			</Typography>
                     <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
                         <FormControl margin="normal" required fullWidth>
-                            <CopyToClipboard text={'http://localhost:3000/meetdetail?query='+this.state.shareLink+''}
+                            <CopyToClipboard text={'http://localhost:3000/meetdetail?query=' + this.state.shareLink + ''}
                                 onCopy={() => this.setState({ copied: true })}>
                                 <Button
                                     fullWidth
@@ -54,58 +58,76 @@ class MeetDetail extends Component {
                             {this.state.copied ? <span style={{ color: 'green' }}>Copied.</span> : null}
 
                             <div>
-                                <br/>
+                                <br />
                                 <h5>Owner of Meeting : <b>{this.state.creatorUser}</b> </h5>
                                 Title : {this.state.titles}
-                                <br/>
+                                <br />
                                 Description : {this.state.descr}
-                                <br/>
+                                <br />
                                 Meet Date : {this.state.meetDates}
 
                             </div>
 
-                            <Container>
-                                <Row>
-                                    <Col>
-                                        <Button
-                                            variant="outline-danger"
-                                            fullWidth
-                                            className={classes.submit}>
-                                            Katılmıyorum
-          		                    </Button>
-                                    </Col>
-                                    <Col>
-                                        <Button
-                                            type="submit"
-                                            variant="success"
-                                            fullWidth
-                                            onClick={onIsjoin}
-                                            className={classes.submit}>
-                                            Katılıyorum
-          		                    </Button>
-                                    </Col>
-                                </Row>
-                            </Container>
+
+
+                            <ButtonGroup toggle className="mt-2">
+                                <Button variant="danger" fullWidth onClick={onIsNotjoin} className={classes.submit}>Not to join</Button>
+                                <Button type="submit" variant="success" fullWidth onClick={onIsjoin} className={classes.submit}>Join</Button>
+
+                            </ButtonGroup>
+
+
 
                         </FormControl>
                     </form>
+
+
+                    <Col>
+                        <ListGroup>
+                            <ListGroup.Item variant="light">Joining Users</ListGroup.Item>
+                        </ListGroup>
+                        <ListGroup>
+                            {this.state.joining.map(item => (
+                                <ListGroup.Item variant="primary" key={item}>{item}</ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    </Col>
+                    <Col>
+                        <ListGroup>
+                            <ListGroup.Item variant="light">Not to joining Users</ListGroup.Item>
+                        </ListGroup>
+                        <ListGroup>
+                            {this.state.nottojoining.map(item => (
+                                <ListGroup.Item variant="danger" key={item}>{item}</ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    </Col>
+
+
                 </Paper>
             </main >
         )
         async function onIsjoin() {
             try {
-                
+
                 await fire.createJoinUser()
-                
-                //props.history.replace('/meetdetail?query=' + firebase.getCurrentLink())
                 alert("Success")
-    
+
+            } catch (error) {
+                alert(error.message)
+            }
+        }
+        async function onIsNotjoin() {
+            try {
+
+                await fire.createNottoJoinUser()
+                alert("Success")
+
             } catch (error) {
                 alert(error.message)
             }
         }
     }
-
     componentDidMount() {
 
         const search = window.location.search
@@ -144,35 +166,51 @@ class MeetDetail extends Component {
 
                 }
             );
+        this.getJoiningUsers()
+        this.getNottoJoiningUsers()
+    }
 
+    getJoiningUsers = () => {
+        // get joining user
+        firebase.firestore().collection("join")
+            .where('link', '==', this.state.shareLink)
+            .get()
+            .then(querySnapshot => {
+                const data = querySnapshot.docs.map(doc => doc.data());
+                console.log(data)
+                return data
+            }).then(
+                res => {
+                    const joiningUsers = []
+                    for (var i = 0; i < res.length; i++) {
 
-        //return array
-        /* if (!firebase.auth().currentUser) {
-             alert("Lütfen Giriş Yapınız")
-             return <Redirect to='/login' />
-             // Eğer kullanıcı giriş yapmamış ve giriş yap kısmına yonlendiriliyorsa 
-             // Link alınıp hafızada tutulmalıdır ve giriş yaptıktan sonra yenıden
-             // bu sayfaya yonlendirilmelidir.
-         }
-         else {*/
-        // Eğer my query link yoksa donen datanın linki alınır.
+                        joiningUsers.push(res[i].userName);
+                    }
+                    this.state.joining = joiningUsers
+                    //return joiningUsers
+                }
+            );
+    }
+    getNottoJoiningUsers = () => {
+        // get not to joining user
+        firebase.firestore().collection("nottojoin")
+            .where('link', '==', this.state.shareLink)
+            .get()
+            .then(querySnapshot => {
+                const data = querySnapshot.docs.map(doc => doc.data());
+                console.log(data)
+                return data
+            }).then(
+                res => {
+                    const nottojoiningUsers = []
+                    for (var i = 0; i < res.length; i++) {
 
-
-        //console.log(firebase.getMeetForLink(this.state.shareLink)) 
-        /*const arr = firebase.getMeetForLink(this.state.shareLink)
-        console.log(arr.value)
-        alert(arr)*/
-
-        /* this.state.creatorUser = firebase.getCurrentCreatorUser()
-         alert(firebase.getCurrentCreatorUser())
-         this.state.descr = firebase.getCurrentDescription()
-         this.setState({titles : firebase.getCurrentTitle()}) 
-         this.state.meetDates = firebase.getCurrentMeetDate()*/
-
-
-
-        // }
-
+                        nottojoiningUsers.push(res[i].userName);
+                    }
+                    this.state.nottojoining = nottojoiningUsers
+                    //return not to joiningUsers
+                }
+            );
     }
     getUserNamebyId = (uid) => {
         const name = firebase.firestore().collection("user")
@@ -190,7 +228,8 @@ class MeetDetail extends Component {
             );
         return name
     }
-    
+
+
 }
 
 export default withStyles(styles)(MeetDetail)

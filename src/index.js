@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './components/App'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 
 // Firebase API keys and some configurations.
 const firebase = require('firebase');
@@ -18,4 +18,4 @@ firebase.initializeApp({
 	appId: "1:327368406646:web:f4afcc2af018f3a11dd157"
 });
 
-ReactDOM.render(<Router basename={"https://alperenarc.github.io/MeetApp/"}>< App /></Router>, document.getElementById('root'))
+ReactDOM.render(<HashRouter>< App /></HashRouter>, document.getElementById('root'))
